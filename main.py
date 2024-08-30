@@ -1,30 +1,30 @@
-from typing import Any, Dict, List, TypedDict
+from typing import List
 
 import cv2
 import numpy as np
 import requests
 from cv2.typing import MatLike
-from flask import Flask, jsonify, request
+from fastapi import FastAPI
+from pydantic import BaseModel
 
-app = Flask(__name__)
+app = FastAPI()
 
 
-class Blob(TypedDict):
+class Blob(BaseModel):
     url: str
-    downloadUrl: str
-    pathName: str
+    download_url: str
+    pathname: str
     size: float
-    uploadedAt: str
+    uploaded_at: str
 
 
-@app.route("/calibrate", methods=["POST"])
-async def calibrate():
-    data: Dict[str, Any] | None = request.json
+class Request(BaseModel):
+    blobs: List[Blob]
 
-    if not data:
-        raise RuntimeError("NONONONO")
 
-    blobs: List[Blob] = data.get("blobs", [])
+@app.post("/calibrate")
+async def calibrate(request: Request):
+    blobs = request.blobs
 
     checkboard = (11, 7)
 
@@ -46,7 +46,7 @@ async def calibrate():
     imgpoints: list[MatLike] = []  # 2d points in image plane
 
     for blob in blobs:
-        response = requests.get(blob["downloadUrl"])
+        response = requests.get(blob.download_url)
         response.raise_for_status()
 
         image_array = np.frombuffer(response.content, np.uint8)
@@ -73,4 +73,4 @@ async def calibrate():
         np.array([]),
     )
 
-    return jsonify({"camera_matrix": mtx.tolist(), "dist": dist.tolist()})
+    return {"camera_matrix": mtx.tolist(), "dist": dist.tolist()}

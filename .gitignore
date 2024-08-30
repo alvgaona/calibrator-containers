@@ -37,3 +37,6 @@ next-env.d.ts
 
 # numpy files
 *.npz
+# pixi environments
+.pixi
+*.egg-info

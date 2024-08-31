@@ -65,7 +65,7 @@ def run_calibration(blobs) -> None:
 
 def handler(event, context):
     for record in event["Records"]:
-        message = json.load(record["body"])
+        message = json.loads(record["body"])
         blobs = message["blobs"]
 
         context.log(f"Number of received blobs: {len(blobs)}")

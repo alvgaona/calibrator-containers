@@ -1,23 +1,17 @@
 from typing import List
 
+import logging
+import json
 import httpx
 import cv2
 import numpy as np
 
-# class Blob(BaseModel):
-#     url: str
-#     download_url: str
-#     pathname: str
-#     size: float
-#     uploaded_at: str
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
-# class Request(BaseModel):
-#     blobs: List[Blob]
-
-def handler(event, context):
-    blobs = event["blobs"]
-
+def run_calibration(blobs) -> None:
     checkboard = (11, 7)
 
     # Termination criteria
@@ -38,7 +32,7 @@ def handler(event, context):
     imgpoints = []  # 2d points in image plane
 
     for blob in blobs:
-        response = httpx.get(blob.download_url)
+        response = httpx.get(blob["download_url"])
         response.raise_for_status()
 
         image_array = np.frombuffer(response.content, np.uint8)
@@ -65,4 +59,15 @@ def handler(event, context):
         np.array([]),
     )
 
-    return {"camera_matrix": mtx.tolist(), "dist": dist.tolist()}
+    logger.info(f"mtx={mtx.tolist()}")
+    logger.info(f"mtx={dist.tolist()}")
+
+
+def handler(event, context):
+    for record in event["Records"]:
+        message = json.load(record["body"])
+        blobs = message["blobs"]
+
+        context.log(f"Number of received blobs: {len(blobs)}")
+
+        run_calibration(blobs)

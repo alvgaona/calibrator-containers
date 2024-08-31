@@ -1,7 +1,7 @@
 [project]
-name = "calibrator"
-version = "0.1.0"
-description = "An open-source app to do camera calibration"
+name = "calibrate"
+version = "1.0.0"
+description = "An AWS Lambda camera calibration function"
 authors = ["Alvaro Gaona <alvgaona@gmail.com>"]
 channels = ["conda-forge"]
 platforms = ["linux-64", "osx-64", "win-64"]
@@ -16,3 +16,7 @@ numpy = ">=2.1.0,<2.2"
 [pypi-dependencies]
 httpx = "*"
 awslambdaric = "*"
+boto3 = "*"
+
+[build-dependencies]
+cmake = ">=3.30.3,<3.31"

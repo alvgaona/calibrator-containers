@@ -19,4 +19,6 @@ COPY --from=build /app/lambda_function.py /app/lambda_function.py
 COPY --from=build /app/entrypoint.sh /entrypoint.sh
 COPY --from=build /shell-hook.sh /shell-hook.sh
 
+WORKDIR /app
+
 ENTRYPOINT ["/entrypoint.sh"]

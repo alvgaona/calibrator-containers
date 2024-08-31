@@ -1,16 +1,18 @@
 [project]
 name = "calibrator"
 version = "0.1.0"
-description = "Add a short description here"
-authors = ["Alvaro <alvgaona@gmail.com>"]
+description = "An open-source app to do camera calibration"
+authors = ["Alvaro Gaona <alvgaona@gmail.com>"]
 channels = ["conda-forge"]
-platforms = ["linux-64"]
+platforms = ["linux-64", "osx-64", "win-64"]
 
 [tasks]
 
 [dependencies]
-python = ">=3.12.5,<4"
+python = ">=3.11,<3.12"
+opencv = ">=4.10.0,<4.11"
+numpy = ">=2.1.0,<2.2"
 
 [pypi-dependencies]
-fastapi = { version = ">=0.112.2, <0.113", extras = ["standard"]}
-opencv-python = ">=4.10.0.84, <5"
+httpx = "*"
+awslambdaric = "*"

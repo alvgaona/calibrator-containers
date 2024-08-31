@@ -1,3 +1,3 @@
 # Calibrator
 
-A free open-source app to do camera calibration
+An open-source app to do camera calibration

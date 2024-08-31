@@ -1,30 +1,22 @@
 from typing import List
 
+import httpx
 import cv2
 import numpy as np
-import requests
-from cv2.typing import MatLike
-from fastapi import FastAPI
-from pydantic import BaseModel
 
-app = FastAPI()
-
-
-class Blob(BaseModel):
-    url: str
-    download_url: str
-    pathname: str
-    size: float
-    uploaded_at: str
+# class Blob(BaseModel):
+#     url: str
+#     download_url: str
+#     pathname: str
+#     size: float
+#     uploaded_at: str
 
 
-class Request(BaseModel):
-    blobs: List[Blob]
+# class Request(BaseModel):
+#     blobs: List[Blob]
 
-
-@app.post("/calibrate")
-async def calibrate(request: Request):
-    blobs = request.blobs
+def handler(event, context):
+    blobs = event["blobs"]
 
     checkboard = (11, 7)
 
@@ -42,11 +34,11 @@ async def calibrate(request: Request):
     )
 
     # Arrays to store object points and image points from all images
-    objpoints: list[MatLike] = []  # 3d points in real world space
-    imgpoints: list[MatLike] = []  # 2d points in image plane
+    objpoints = []  # 3d points in real world space
+    imgpoints = []  # 2d points in image plane
 
     for blob in blobs:
-        response = requests.get(blob.download_url)
+        response = httpx.get(blob.download_url)
         response.raise_for_status()
 
         image_array = np.frombuffer(response.content, np.uint8)

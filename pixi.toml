@@ -1,0 +1,30 @@
+[project]
+name = "calibrator-functions"
+version = "1.0.0"
+description = "Serverless functions for camera calibration"
+authors = ["Alvaro Gaona <alvgaona@gmail.com>"]
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-64", "win-64"]
+
+[tasks]
+
+[dependencies]
+python = ">=3.11,<3.12"
+
+[pypi-dependencies]
+awslambdaric = "*"
+aws-lambda-powertools = "*"
+
+[build-dependencies]
+cmake = ">=3.30.3,<3.31"
+
+[feature.test]
+dependencies = { ruff = "*", pytest = "*" }
+
+[feature.calibrate]
+dependencies = { opencv = ">=4.10.0,<4.11", numpy = ">=2.1.0,<2.2" }
+pypi-dependencies = { boto3 = "*" }
+
+[environments]
+test = ["calibrate", "test"]
+calibrate = ["calibrate"]

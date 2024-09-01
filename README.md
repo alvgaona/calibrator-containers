@@ -1,3 +1,3 @@
-# Calibrator
+# Calibrator Functions
 
-An open-source app to do camera calibration
+All serverless functions dedicated to run my camera calibration app

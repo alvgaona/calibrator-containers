@@ -1,11 +1,10 @@
-from aws_lambda_powertools import Logger
-
 import json
-import cv2
-import numpy as np
-import boto3
 import os
 
+import boto3
+import cv2
+import numpy as np
+from aws_lambda_powertools import Logger
 
 R2_ENDPOINT_URL = os.environ.get("R2_ENDPOINT_URL")
 R2_ACCESS_KEY = os.environ.get("R2_ACCESS_KEY")
@@ -36,7 +35,9 @@ def run_calibration(metadata, images) -> None:
 
     # Prepare object points
     objp = np.zeros((checkboard[0] * checkboard[1], 3), np.float32)
-    objp[:, :2] = np.mgrid[0 : checkboard[0], 0 : checkboard[1]].T.reshape(-1, 2)
+    objp[:, :2] = np.mgrid[0 : checkboard[0], 0 : checkboard[1]].T.reshape(
+        -1, 2
+    )
 
     # Arrays to store object points and image points from all images
     objpoints = []  # 3d points in real world space
@@ -59,7 +60,9 @@ def run_calibration(metadata, images) -> None:
 
         if ret:
             objpoints.append(objp)
-            corners2 = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
+            corners2 = cv2.cornerSubPix(
+                gray, corners, (11, 11), (-1, -1), criteria
+            )
             imgpoints.append(corners2)
 
     ret, mtx, dist, _, _ = cv2.calibrateCamera(

@@ -1,3 +1,3 @@
 # Calibrator Functions
 
-All serverless functions dedicated to run my camera calibration app
+All AWS lambdas dedicated to run Calibrator

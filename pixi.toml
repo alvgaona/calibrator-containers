@@ -1,5 +1,5 @@
 [project]
-name = "calibrator-functions"
+name = "calibrator-lambdas"
 version = "0.0.1"
 description = "All AWS lambdas dedicated to run Calibrator"
 authors = ["Alvaro Gaona <alvgaona@gmail.com>"]

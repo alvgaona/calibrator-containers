@@ -5,6 +5,9 @@ ARG PIXI_ENV
 
 WORKDIR /app
 
+# Force pixi to create its data inside /app so we can copy it later
+ENV PIXI_HOME=/app/.pixi
+
 COPY pixi.toml /app
 COPY pixi.lock /app
 COPY ./${FUNCTION_DIR}/lambda_function.py /app

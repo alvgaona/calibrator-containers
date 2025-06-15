@@ -1,4 +1,4 @@
-FROM ghcr.io/prefix-dev/pixi:0.28.2 AS build
+FROM ghcr.io/prefix-dev/pixi:0.48.1 AS build
 
 ARG FUNCTION_DIR
 ARG PIXI_ENV

@@ -9,11 +9,11 @@ platforms = ["linux-64", "osx-64", "win-64"]
 [tasks]
 
 [dependencies]
-python = ">=3.11,<3.12"
+python = ">=3.11.13,<3.14"
 
 [pypi-dependencies]
-awslambdaric = "*"
-aws-lambda-powertools = "*"
+awslambdaric = ">=3.1.1, <4"
+aws-lambda-powertools = ">=3.14.0, <4"
 
 [build-dependencies]
 cmake = ">=3.30.3,<3.31"

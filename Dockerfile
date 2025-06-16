@@ -1,9 +1,12 @@
-FROM ghcr.io/prefix-dev/pixi:0.28.2 AS build
+FROM ghcr.io/prefix-dev/pixi:0.48.1 AS build
 
-ARG FUNCTION_DIR
-ARG PIXI_ENV
+ARG FUNCTION_DIR="calibrate"
+ARG PIXI_ENV="calibrate"
 
 WORKDIR /app
+
+# Force pixi to create its data inside /app so we can copy it later
+ENV PIXI_HOME=/app/.pixi
 
 COPY pixi.toml /app
 COPY pixi.lock /app
@@ -20,7 +23,7 @@ RUN echo 'exec "$@"' >> /shell-hook.sh
 
 FROM ubuntu:22.04 AS production
 
-ARG PIXI_ENV
+ARG PIXI_ENV="calibrate"
 
 COPY --from=build /app/.pixi/envs/${PIXI_ENV} /app/.pixi/envs/${PIXI_ENV}
 COPY --from=build /app/lambda_function.py /app/lambda_function.py

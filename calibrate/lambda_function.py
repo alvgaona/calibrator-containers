@@ -1,29 +1,40 @@
 import json
-import os
+from functools import lru_cache
+from typing import Any
 
 import boto3
 import cv2
 import numpy as np
 from aws_lambda_powertools import Logger
 
-R2_ENDPOINT_URL = os.environ.get("R2_ENDPOINT_URL")
-R2_ACCESS_KEY = os.environ.get("R2_ACCESS_KEY")
-R2_SECRET_ACCESS_KEY = os.environ.get("R2_SECRET_ACCESS_KEY")
-R2_BUCKET = os.environ.get("R2_BUCKET")
-
-
-s3 = boto3.client(
-    "s3",
-    endpoint_url=R2_ENDPOINT_URL,
-    aws_access_key_id=R2_ACCESS_KEY,
-    aws_secret_access_key=R2_SECRET_ACCESS_KEY,
-    region_name="auto",
-)
+from .models import Metadata, Settings, SQSMessageBody
 
 logger = Logger()
 
 
-def run_calibration(metadata, images) -> None:
+@lru_cache(maxsize=1)
+def get_settings() -> Settings:
+    """Get settings from environment variables (cached)."""
+    return Settings()
+
+
+@lru_cache(maxsize=1)
+def get_s3_client():
+    """Initialize S3 client with settings from environment variables (cached)."""
+    settings = get_settings()
+    return boto3.client(
+        "s3",
+        endpoint_url=settings.r2_endpoint_url,
+        aws_access_key_id=settings.r2_access_key,
+        aws_secret_access_key=settings.r2_secret_access_key,
+        region_name="auto",
+    )
+
+
+def run_calibration(metadata: Metadata, images: list[str]) -> None:
+    s3 = get_s3_client()
+    settings = get_settings()
+
     checkboard = (11, 7)
 
     # Termination criteria
@@ -42,11 +53,12 @@ def run_calibration(metadata, images) -> None:
     # Arrays to store object points and image points from all images
     objpoints = []  # 3d points in real world space
     imgpoints = []  # 2d points in image plane
+    gray = None  # Initialize to avoid potential unbound variable
 
     for image_name in images:
-        logger.info(f'{metadata["dataset"]}/{image_name}')
+        logger.info(f"{metadata.dataset}/{image_name}")
         response = s3.get_object(
-            Bucket=R2_BUCKET, Key=f'{metadata["dataset"]}/{image_name}'
+            Bucket=settings.r2_bucket, Key=f"{metadata.dataset}/{image_name}"
         )
 
         image_array = np.frombuffer(response["Body"].read(), np.uint8)
@@ -68,7 +80,7 @@ def run_calibration(metadata, images) -> None:
     ret, mtx, dist, _, _ = cv2.calibrateCamera(
         objpoints,
         imgpoints,
-        gray.shape[::-1],  # type: ignore[reportPossiblyUnboundVariable]
+        gray.shape[::-1] if gray is not None else (0, 0),
         np.array([]),
         np.array([]),
     )
@@ -79,15 +91,15 @@ def run_calibration(metadata, images) -> None:
     }
 
     s3.put_object(
-        Bucket=R2_BUCKET,
-        Key=f'{metadata["run_id"]}/metadata.json',
-        Body=json.dumps(metadata, indent=4),
+        Bucket=settings.r2_bucket,
+        Key=f"{metadata.run_id}/metadata.json",
+        Body=json.dumps(metadata.model_dump(), indent=4),
         ContentType="application/json",
     )
 
     s3.put_object(
-        Bucket=R2_BUCKET,
-        Key=f'{metadata["run_id"]}/result.json',
+        Bucket=settings.r2_bucket,
+        Key=f"{metadata.run_id}/result.json",
         Body=json.dumps(result, indent=4),
         ContentType="application/json",
     )
@@ -95,11 +107,11 @@ def run_calibration(metadata, images) -> None:
     logger.info("Calibration finished")
 
 
-def handler(event, context):
+def handler(event: dict[str, Any], context: Any) -> None:
     for record in event["Records"]:
-        message = json.loads(record["body"])
-        metadata = message["metadata"]
-        images = message["images"]
+        msg: SQSMessageBody = SQSMessageBody.parse_raw(record["body"])
+        metadata: Metadata = msg.metadata
+        images: list[str] = msg.images
 
         logger.info(f"Number of images: {len(images)}")
 

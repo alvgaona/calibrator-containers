@@ -28,6 +28,15 @@ class Metadata(BaseModel):
     dataset: str = Field(
         ..., description="Source folder holding calibration images"
     )
+    checkerboard_size: tuple[int, int] = Field(
+        ..., description="Size of the checkerboard pattern in squares"
+    )
+    calibration_accuracy: float = Field(
+        default=0.001, description="Accuracy of the calibration"
+    )
+    iterations: int = Field(
+        default=30, description="Number of iterations for the calibration"
+    )
 
     class Config:
         # Allow forward compatibility in case the producer adds new keys.

@@ -1,5 +1,5 @@
 [project]
-name = "calibrator-lambdas"
+name = "calibrator-containers"
 version = "0.0.1"
 description = "Camera calibration workspace with multiple services"
 authors = [{ name = "Alvaro Gaona", email = "alvgaona@gmail.com" }]

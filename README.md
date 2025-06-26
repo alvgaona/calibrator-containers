@@ -175,7 +175,7 @@ uv run ruff check .
 ### Project Structure
 
 ```
-calibrator-lambdas/
+calibrator-containers/
 ├── calibrate/
 │   ├── __init__.py
 │   ├── main.py              # FastAPI application

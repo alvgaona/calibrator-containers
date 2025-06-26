@@ -1,35 +1,38 @@
-FROM ghcr.io/prefix-dev/pixi:0.48.1 AS build
-
-ARG FUNCTION_DIR="calibrate"
-ARG PIXI_ENV="calibrate"
+FROM python:3.11-slim AS build
 
 WORKDIR /app
 
-# Force pixi to create its data inside /app so we can copy it later
-ENV PIXI_HOME=/app/.pixi
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-COPY pixi.toml /app
-COPY pixi.lock /app
-COPY ./${FUNCTION_DIR}/lambda_function.py /app
-COPY entrypoint.sh /app
+# Copy dependency files
+COPY pyproject.toml /app/
+COPY uv.lock /app/
 
-RUN pixi install -e ${PIXI_ENV}
+# Install dependencies
+RUN uv sync --frozen --no-dev
 
-# Create the shell-hook bash script to activate the environment
-RUN pixi shell-hook -e ${PIXI_ENV} > /shell-hook.sh
+# Copy application code
+COPY calibrate/ /app/calibrate/
 
-# extend the shell-hook script to run the command passed to the container
-RUN echo 'exec "$@"' >> /shell-hook.sh
-
-FROM ubuntu:22.04 AS production
-
-ARG PIXI_ENV="calibrate"
-
-COPY --from=build /app/.pixi/envs/${PIXI_ENV} /app/.pixi/envs/${PIXI_ENV}
-COPY --from=build /app/lambda_function.py /app/lambda_function.py
-COPY --from=build /app/entrypoint.sh /entrypoint.sh
-COPY --from=build /shell-hook.sh /shell-hook.sh
+FROM python:3.11-slim AS production
 
 WORKDIR /app
 
-ENTRYPOINT ["/entrypoint.sh"]
+# Install uv in production image
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Copy the virtual environment from build stage
+COPY --from=build /app/.venv /app/.venv
+
+# Copy application files
+COPY --from=build /app/calibrate /app/calibrate
+
+# Make sure we can find the virtual environment
+ENV PATH="/app/.venv/bin:$PATH"
+
+# Expose the FastAPI port
+EXPOSE 8000
+
+# Run the FastAPI server
+CMD ["uvicorn", "calibrate.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -15,15 +15,14 @@ RUN apt-get update && apt-get install -y \
 # Install uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# Copy dependency files
-COPY pyproject.toml /app/
-COPY uv.lock /app/
+# Copy workspace dependency files
+COPY pyproject.toml uv.lock /app/
 
-# Install dependencies
+# Copy packages directory
+COPY packages/ /app/packages/
+
+# Install dependencies for the entire workspace
 RUN uv sync --frozen --no-dev
-
-# Copy application code
-COPY calibrate/ /app/calibrate/
 
 FROM python:3.11-slim AS production
 
@@ -42,11 +41,10 @@ RUN apt-get update && apt-get install -y \
 # Install uv in production image
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# Copy the virtual environment from build stage
+# Copy the virtual environment and workspace from build stage
 COPY --from=build /app/.venv /app/.venv
-
-# Copy application files
-COPY --from=build /app/calibrate /app/calibrate
+COPY --from=build /app/pyproject.toml /app/pyproject.toml
+COPY --from=build /app/packages /app/packages
 
 # Make sure we can find the virtual environment
 ENV PATH="/app/.venv/bin:$PATH"
@@ -54,5 +52,5 @@ ENV PATH="/app/.venv/bin:$PATH"
 # Expose the FastAPI port
 EXPOSE 8000
 
-# Run the FastAPI server
-CMD ["uvicorn", "calibrate.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run the FastAPI server using uv to ensure proper workspace package resolution
+CMD ["uv", "run", "--package", "calibrate", "uvicorn", "calibrate.main:app", "--host", "0.0.0.0", "--port", "8000"]

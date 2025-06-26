@@ -10,7 +10,7 @@ import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 
-from .models import Metadata, Settings, SQSMessageBody
+from .models import CalibrationRequest, Metadata, Settings
 
 # Initialize logger for tracking execution
 logging.basicConfig(level=logging.INFO)
@@ -186,12 +186,12 @@ async def health():
 
 
 @app.post("/calibrate")
-async def calibrate(request: SQSMessageBody):
+async def calibrate(request: CalibrationRequest):
     """
     Perform camera calibration using provided metadata and image list.
 
     Args:
-        request: SQSMessageBody containing metadata and list of image names
+        request: CalibrationRequest containing metadata and list of image names
 
     Returns:
         JSONResponse with calibration results

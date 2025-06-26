@@ -13,6 +13,6 @@ draft/
 
 # numpy files
 *.npz
-# pixi environments
-.pixi
+# uv environments
+.venv
 *.egg-info

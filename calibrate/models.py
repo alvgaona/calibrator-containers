@@ -1,5 +1,5 @@
 """
-Typed data structures shared across the calibration Lambda.
+Typed data structures shared across the calibration service.
 
 Keeping them in their own module makes the rest of the codebase cleaner and
 allows IDEs / type-checkers to import them without pulling in heavy runtime
@@ -45,9 +45,9 @@ class Metadata(BaseModel):
         extra = "allow"
 
 
-class SQSMessageBody(BaseModel):
+class CalibrationRequest(BaseModel):
     """
-    Exact JSON payload placed on the SQS queue.
+    JSON payload for calibration requests from Cloudflare Queue.
 
     Example
     -------
@@ -74,7 +74,7 @@ class SQSMessageBody(BaseModel):
 
 class Settings(BaseSettings):
     """
-    Environment variables configuration for the calibration Lambda.
+    Environment variables configuration for the calibration service.
     """
 
     r2_endpoint_url: str = Field(
@@ -138,7 +138,7 @@ class CalibrationResultResponse(BaseModel):
 
 __all__ = [
     "Metadata",
-    "SQSMessageBody",
+    "CalibrationRequest",
     "Settings",
     "HealthResponse",
     "CalibrationResult",

@@ -6,6 +6,8 @@ allows IDEs / type-checkers to import them without pulling in heavy runtime
 dependencies such as `boto3` or `opencv`.
 """
 
+from typing import Any, Optional
+
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings
 
@@ -92,4 +94,54 @@ class Settings(BaseSettings):
     }
 
 
-__all__ = ["Metadata", "SQSMessageBody", "Settings"]
+class HealthResponse(BaseModel):
+    """Response model for health check endpoints."""
+
+    status: str = Field(description="Health status")
+    message: Optional[str] = Field(default=None, description="Optional message")
+
+
+class CalibrationResult(BaseModel):
+    """Model for calibration computation results."""
+
+    camera_matrix: list[list[float]] = Field(description="3x3 camera matrix")
+    dist: list[float] = Field(description="Distortion coefficients")
+    processed_images: int = Field(
+        description="Number of images successfully processed"
+    )
+    total_images: int = Field(description="Total number of images provided")
+
+
+class CalibrationResponse(BaseModel):
+    """Response model for calibration endpoint."""
+
+    status: str = Field(description="Response status")
+    message: str = Field(description="Response message")
+    run_id: str = Field(description="Calibration run identifier")
+    result: CalibrationResult = Field(
+        description="Calibration computation results"
+    )
+
+
+class CalibrationResultResponse(BaseModel):
+    """Response model for retrieving calibration results."""
+
+    status: str = Field(description="Response status")
+    run_id: str = Field(description="Calibration run identifier")
+    result: CalibrationResult = Field(
+        description="Calibration computation results"
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None, description="Original calibration metadata"
+    )
+
+
+__all__ = [
+    "Metadata",
+    "SQSMessageBody",
+    "Settings",
+    "HealthResponse",
+    "CalibrationResult",
+    "CalibrationResponse",
+    "CalibrationResultResponse",
+]

@@ -10,6 +10,12 @@ resolution-markers = [
     "(python_full_version < '3.12' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform != 'darwin' and sys_platform != 'linux')",
 ]
 
+[manifest]
+members = [
+    "calibrate",
+    "calibrator-lambdas",
+]
+
 [[package]]
 name = "annotated-types"
 version = "0.7.0"
@@ -62,9 +68,9 @@ wheels = [
 ]
 
 [[package]]
-name = "calibrator-lambdas"
+name = "calibrate"
 version = "0.0.1"
-source = { editable = "." }
+source = { editable = "packages/calibrate" }
 dependencies = [
     { name = "boto3" },
     { name = "fastapi" },
@@ -74,11 +80,6 @@ dependencies = [
     { name = "pydantic-settings" },
     { name = "ruff" },
     { name = "uvicorn", extra = ["standard"] },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "cmake" },
 ]
 
 [package.metadata]
@@ -92,6 +93,18 @@ requires-dist = [
     { name = "ruff", specifier = ">=0.11.13,<0.12" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.24.0,<1.0" },
 ]
+
+[[package]]
+name = "calibrator-lambdas"
+version = "0.0.1"
+source = { virtual = "." }
+
+[package.dev-dependencies]
+dev = [
+    { name = "cmake" },
+]
+
+[package.metadata]
 
 [package.metadata.requires-dev]
 dev = [{ name = "cmake", specifier = ">=3.30.3,<3.31" }]

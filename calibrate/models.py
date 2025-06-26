@@ -24,12 +24,8 @@ class Metadata(BaseModel):
         Folder (S3 key-prefix) that contains the source images.
     """
 
-    run_id: str = Field(
-        ..., description="Destination folder for result artefacts"
-    )
-    dataset: str = Field(
-        ..., description="Source folder holding calibration images"
-    )
+    run_id: str = Field(..., description="Destination folder for result artefacts")
+    dataset: str = Field(..., description="Source folder holding calibration images")
     checkerboard_size: tuple[int, int] = Field(
         ..., description="Size of the checkerboard pattern in squares"
     )
@@ -77,12 +73,8 @@ class Settings(BaseSettings):
     Environment variables configuration for the calibration service.
     """
 
-    r2_endpoint_url: str = Field(
-        default="", description="Cloudflare R2 endpoint URL"
-    )
-    r2_access_key: str = Field(
-        default="", description="Cloudflare R2 access key"
-    )
+    r2_endpoint_url: str = Field(default="", description="Cloudflare R2 endpoint URL")
+    r2_access_key: str = Field(default="", description="Cloudflare R2 access key")
     r2_secret_access_key: str = Field(
         default="", description="Cloudflare R2 secret access key"
     )
@@ -106,9 +98,7 @@ class CalibrationResult(BaseModel):
 
     camera_matrix: list[list[float]] = Field(description="3x3 camera matrix")
     dist: list[float] = Field(description="Distortion coefficients")
-    processed_images: int = Field(
-        description="Number of images successfully processed"
-    )
+    processed_images: int = Field(description="Number of images successfully processed")
     total_images: int = Field(description="Total number of images provided")
 
 
@@ -118,9 +108,7 @@ class CalibrationResponse(BaseModel):
     status: str = Field(description="Response status")
     message: str = Field(description="Response message")
     run_id: str = Field(description="Calibration run identifier")
-    result: CalibrationResult = Field(
-        description="Calibration computation results"
-    )
+    result: CalibrationResult = Field(description="Calibration computation results")
 
 
 class CalibrationResultResponse(BaseModel):
@@ -128,9 +116,7 @@ class CalibrationResultResponse(BaseModel):
 
     status: str = Field(description="Response status")
     run_id: str = Field(description="Calibration run identifier")
-    result: CalibrationResult = Field(
-        description="Calibration computation results"
-    )
+    result: CalibrationResult = Field(description="Calibration computation results")
     metadata: Optional[dict[str, Any]] = Field(
         default=None, description="Original calibration metadata"
     )

@@ -103,24 +103,18 @@ def run_calibration(metadata: Metadata, images: list[str]) -> dict[str, Any]:
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
             # Find the chess board corners
-            ret, corners = cv2.findChessboardCorners(
-                gray, (width, height), None
-            )
+            ret, corners = cv2.findChessboardCorners(gray, (width, height), None)
 
             # If corners found successfully
             if ret:
                 # Add corresponding 3D object points
                 objpoints.append(objp)
                 # Refine corner positions to sub-pixel accuracy
-                corners2 = cv2.cornerSubPix(
-                    gray, corners, (11, 11), (-1, -1), criteria
-                )
+                corners2 = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
                 # Add refined 2D image points
                 imgpoints.append(corners2)
             else:
-                logger.warning(
-                    f"No checkerboard corners found in image: {image_name}"
-                )
+                logger.warning(f"No checkerboard corners found in image: {image_name}")
 
         except Exception as e:
             logger.error(f"Error processing image {image_name}: {str(e)}")

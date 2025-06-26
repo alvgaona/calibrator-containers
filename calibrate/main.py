@@ -229,60 +229,6 @@ async def calibrate(request: CalibrationRequest):
         )
 
 
-@app.get("/calibrate/{run_id}")
-async def get_calibration_result(run_id: str):
-    """
-    Retrieve calibration results for a specific run ID.
-
-    Args:
-        run_id: The run ID to retrieve results for
-
-    Returns:
-        JSONResponse with calibration results
-    """
-    try:
-        s3 = get_s3_client()
-        settings = get_settings()
-
-        # Try to get the result file from S3
-        try:
-            response = s3.get_object(
-                Bucket=settings.r2_bucket, Key=f"{run_id}/result.json"
-            )
-            result = json.loads(response["Body"].read().decode())
-
-            # Also get metadata if available
-            try:
-                metadata_response = s3.get_object(
-                    Bucket=settings.r2_bucket, Key=f"{run_id}/metadata.json"
-                )
-                metadata = json.loads(metadata_response["Body"].read().decode())
-            except:
-                metadata = None
-
-            return JSONResponse(
-                status_code=200,
-                content={
-                    "status": "success",
-                    "run_id": run_id,
-                    "result": result,
-                    "metadata": metadata,
-                },
-            )
-
-        except s3.exceptions.NoSuchKey:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Calibration results not found for run_id: {run_id}",
-            )
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error retrieving calibration results: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal server error")
-
-
 if __name__ == "__main__":
     uvicorn.run(
         "calibrate.main:app",

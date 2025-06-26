@@ -1,7 +1,7 @@
 [project]
 name = "calibrator-lambdas"
 version = "0.0.1"
-description = "All AWS lambdas dedicated to run Calibrator"
+description = "Camera calibration service for computing intrinsic parameters from checkerboard pattern images"
 authors = [{ name = "Alvaro Gaona", email = "alvgaona@gmail.com" }]
 requires-python = ">=3.11.13,<3.14"
 dependencies = [

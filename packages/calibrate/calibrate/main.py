@@ -7,7 +7,7 @@ import boto3
 import cv2
 import numpy as np
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, APIRouter
 from fastapi.responses import JSONResponse
 
 from .models import CalibrationRequest, Metadata, Settings
@@ -22,6 +22,9 @@ app = FastAPI(
     description="API for performing camera calibration using checkerboard images",
     version="0.0.1",
 )
+
+# Create API router with prefix
+router = APIRouter(prefix="/api")
 
 
 @lru_cache(maxsize=1)
@@ -167,19 +170,19 @@ def run_calibration(metadata: Metadata, images: list[str]) -> dict[str, Any]:
     return result
 
 
-@app.get("/")
+@router.get("/")
 async def root():
     """Health check endpoint."""
     return {"message": "Camera Calibration API is running"}
 
 
-@app.get("/health")
+@router.get("/health")
 async def health():
     """Health check endpoint."""
     return {"status": "healthy"}
 
 
-@app.post("/calibrate")
+@router.post("/calibrate")
 async def calibrate(request: CalibrationRequest):
     """
     Perform camera calibration using provided metadata and image list.
@@ -221,6 +224,10 @@ async def calibrate(request: CalibrationRequest):
         raise HTTPException(
             status_code=500, detail="Internal server error during calibration"
         )
+
+
+# Include the router in the app
+app.include_router(router)
 
 
 if __name__ == "__main__":
